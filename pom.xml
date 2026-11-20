@@ -28,7 +28,7 @@
         <graalvm.version>24.1.2</graalvm.version>
         <graaljs.version>24.1.2</graaljs.version>
         <graalpy.version>24.1.2</graalpy.version>
-        <lombok.version>1.18.36</lombok.version>
+        <lombok.version>1.18.38</lombok.version>
     </properties>
 
     <dependencies>
