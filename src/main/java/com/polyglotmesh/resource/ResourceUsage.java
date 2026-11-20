@@ -1,4 +1,7 @@
 package com.polyglotmesh.resource;
 
-public class ResourceUsage {
+public record ResourceUsage(
+        Long guestMemoryBytes,
+        Long containerCpuNanoCores,
+        Long containerMemoryBytes) {
 }

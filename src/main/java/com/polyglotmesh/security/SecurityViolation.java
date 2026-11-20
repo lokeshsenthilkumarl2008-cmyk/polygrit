@@ -1,4 +1,4 @@
 package com.polyglotmesh.security;
 
-public class SecurityViolation {
+public record SecurityViolation(SecurityViolationType type, String message) {
 }

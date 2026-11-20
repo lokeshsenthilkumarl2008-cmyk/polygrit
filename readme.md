@@ -325,3 +325,66 @@ The architecture is a high-level target. Actual execution and isolation responsi
 This setup prepares the Windows development environment for the PolyglotMesh Security & Runtime Management module.
 
 The next step is to configure GraalVM sandbox policies, implement execution limits, integrate Docker isolation, and connect runtime monitoring with the main execution pipeline.
+
+## Implemented Security Module
+
+The implementation is organized by responsibility:
+
+- [ExecutionManager.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/runtime/ExecutionManager.java) is the main integration pipeline.
+- [SecurityManager.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/security/SecurityManager.java) validates languages and resource limits.
+- [AccessControlManager.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/security/AccessControlManager.java) classifies host-access violations.
+- [ExecutionTimeoutManager.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/runtime/ExecutionTimeoutManager.java) cancels executions after the configured deadline.
+- [RuntimeResourceMonitor.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/runtime/RuntimeResourceMonitor.java) records start time, end time, and elapsed nanoseconds.
+- [DockerSandboxManager.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/docker/DockerSandboxManager.java) creates and removes disposable restricted containers.
+- [ResourceLimits.java](/d:/PolyglotMesh-Security/src/main/java/com/polyglotmesh/resource/ResourceLimits.java) is the configurable guest and Docker limit model.
+
+### Configuration
+
+The default limits may be changed per request through `ResourceLimits`.
+
+Environment fallbacks:
+
+```text
+POLYGLOTMESH_TIMEOUT_MILLIS
+POLYGLOTMESH_GUEST_HEAP_BYTES
+POLYGLOTMESH_MAX_OUTPUT_BYTES
+POLYGLOTMESH_MAX_THREADS
+POLYGLOTMESH_DOCKER_MEMORY_BYTES
+POLYGLOTMESH_DOCKER_CPU_NANO_CORES
+POLYGLOTMESH_DOCKER_ENABLED=true
+```
+
+Set `POLYGLOTMESH_DOCKER_ENABLED=true` to require Docker for an execution. Docker-disabled execution still enforces GraalVM host-access restrictions and application-level timeout/output controls.
+
+### Build and Test
+
+Install GraalVM JDK 25 first, then open a new terminal:
+
+```powershell
+$env:JAVA_HOME="C:\Java\graalvm-jdk-25"
+$env:PATH="$env:JAVA_HOME\bin;$env:PATH"
+java -version
+.\mvnw.cmd clean test
+```
+
+Run Docker tests only after Docker Desktop is running:
+
+```powershell
+docker version
+docker run --rm --network none --memory=256m --cpus=0.5 alpine:3.21 echo restricted
+```
+
+### Isolation Responsibilities
+
+- GraalVM controls guest language host access and guest-context state.
+- Docker controls process/container memory, CPU quota, network mode, and filesystem mounting.
+- Docker container metrics are reported as `null` unless this process obtains a supported stats value. The project does not fabricate estimates.
+- Guest heap and container memory are separate limits. Guest heap is measured inside the GraalVM isolate where supported; container memory is enforced by Docker.
+
+### Known Limitations
+
+- This environment currently has Eclipse Adoptium JDK 17, not GraalVM JDK 25.
+- Docker CLI and Docker Desktop were not detected.
+- WSL 2 components require enabling on the host.
+- `SandboxPolicy.UNTRUSTED` isolate execution cannot be runtime-tested with JDK 17. The implementation keeps UNTRUSTED host access restrictions and the environment must use GraalVM JDK 25 for isolated execution.
+- Docker container-level stats retrieval is not exposed unless Docker is available and its API reports a value.

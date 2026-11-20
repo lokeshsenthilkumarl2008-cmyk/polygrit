@@ -1,0 +1,12 @@
+package com.polyglotmesh.security;
+
+public enum SecurityViolationType {
+    HOST_CLASS_ACCESS,
+    FILE_SYSTEM_ACCESS,
+    NETWORK_ACCESS,
+    ENVIRONMENT_ACCESS,
+    SYSTEM_PROPERTY_ACCESS,
+    STANDARD_IO_ACCESS,
+    HOST_OBJECT_ACCESS,
+    UNAUTHORIZED_OPERATION
+}
