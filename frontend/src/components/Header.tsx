@@ -4,9 +4,11 @@ import type { Language } from "../types/types";
 interface Props {
   language: Language;
   onLanguageChange: (language: Language) => void;
+  onRun: () => void;
+  isRunning: boolean;
 }
 
-export default function Header({ language, onLanguageChange }: Props) {
+export default function Header({ language, onLanguageChange, onRun, isRunning }: Props) {
   return (
     <header className="header">
       <div className="header-title">
@@ -16,6 +18,9 @@ export default function Header({ language, onLanguageChange }: Props) {
       <div className="header-actions">
         <label htmlFor="lang">Language</label>
         <LanguageSelector value={language} onChange={onLanguageChange} />
+        <button className="run-btn" onClick={onRun} disabled={isRunning}>
+          {isRunning ? "Running..." : "\u25B6 Run"}
+        </button>
       </div>
     </header>
   );
