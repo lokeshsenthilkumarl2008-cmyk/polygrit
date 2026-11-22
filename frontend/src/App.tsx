@@ -5,7 +5,7 @@ import Header from "./components/Header";
 import SplitPane from "./components/SplitPane";
 import StatusBar from "./components/StatusBar";
 import { LANGUAGES } from "./constants/languages";
-import { executeCode } from "./services/api";
+import { ApiError, executeCode } from "./services/api";
 import type { ConsoleLine, Language } from "./types";
 
 interface EditorTab {
@@ -64,8 +64,16 @@ export default function App() {
       } else {
         addLine("error", res.error ?? "Unknown error");
       }
-    } catch (err) {
-      addLine("error", `Request failed: ${err instanceof Error ? err.message : "unknown error"}`);
+        } catch (err) {
+      if (err instanceof ApiError) {
+        const label =
+          err.kind === "timeout" ? "Timeout" :
+          err.kind === "network" ? "Connection error" :
+          err.kind === "http" ? "Server error" : "Invalid response";
+        addLine("error", `${label}: ${err.message}`);
+      } else {
+        addLine("error", `Request failed: ${err instanceof Error ? err.message : "unknown error"}`);
+      }
     } finally {
       setIsRunning(false);
     }
