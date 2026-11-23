@@ -1,17 +1,32 @@
+import { useEffect, useRef } from "react";
 import Editor, { type OnMount } from "@monaco-editor/react";
-import type { EditorTab } from "../types/types";
+
+interface EditorTab {
+  id: string;
+  language: string;
+  content: string;
+}
 
 interface Props {
   tab: EditorTab;
   onChange: (value: string) => void;
   onCursorChange: (line: number, column: number) => void;
+  onRun: () => void;
 }
 
-export default function CodeEditor({ tab, onChange, onCursorChange }: Props) {
-  const handleMount: OnMount = (editor) => {
+export default function CodeEditor({ tab, onChange, onCursorChange, onRun }: Props) {
+  // Ref rakhne se Monaco hamesha latest onRun call karta hai
+  const runRef = useRef(onRun);
+  useEffect(() => {
+    runRef.current = onRun;
+  }, [onRun]);
+
+  const handleMount: OnMount = (editor, monaco) => {
     editor.onDidChangeCursorPosition((e) => {
       onCursorChange(e.position.lineNumber, e.position.column);
     });
+    // Ctrl+Enter (Mac par Cmd+Enter) se code run karo
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => runRef.current());
   };
 
   return (

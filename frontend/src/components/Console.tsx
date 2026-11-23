@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ConsoleLine } from "../types";
 
 interface Props {
@@ -6,30 +6,49 @@ interface Props {
   onClear: () => void;
 }
 
+const formatTime = (ts: number) =>
+  new Date(ts).toLocaleTimeString("en-GB", { hour12: false });
+
 export default function Console({ lines, onClear }: Props) {
   const endRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
 
-  // Naya output aate hi neeche scroll karo
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [lines]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(lines.map((l) => l.text).join("\n"));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   return (
     <div className="console">
       <div className="console-header">
         <span>CONSOLE OUTPUT</span>
-        <button className="clear-btn" onClick={onClear}>
-          Clear
-        </button>
+        <span className="console-actions">
+          <button className="clear-btn" onClick={handleCopy} disabled={lines.length === 0}>
+            {copied ? "Copied!" : "Copy"}
+          </button>
+          <button className="clear-btn" onClick={onClear}>
+            Clear
+          </button>
+        </span>
       </div>
       <div className="console-body">
         {lines.length === 0 && (
-          <div className="console-empty">Run your code to see output here.</div>
+          <div className="console-empty">Run your code (Ctrl+Enter) to see output here.</div>
         )}
         {lines.map((line) => (
-          <pre key={line.id} className={`console-line ${line.type}`}>
-            {line.text}
-          </pre>
+          <div key={line.id} className="console-row">
+            <span className="console-time">{formatTime(line.timestamp)}</span>
+            <pre className={`console-line ${line.type}`}>{line.text}</pre>
+          </div>
         ))}
         <div ref={endRef} />
       </div>

@@ -18,7 +18,7 @@ export default function Header({ language, onLanguageChange, onRun, isRunning }:
       <div className="header-actions">
         <label htmlFor="lang">Language</label>
         <LanguageSelector value={language} onChange={onLanguageChange} />
-        <button className="run-btn" onClick={onRun} disabled={isRunning}>
+        <button className="run-btn" onClick={onRun} disabled={isRunning} title="Run (Ctrl+Enter)">
           {isRunning ? "Running..." : "\u25B6 Run"}
         </button>
       </div>

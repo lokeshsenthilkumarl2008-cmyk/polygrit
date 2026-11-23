@@ -15,7 +15,7 @@ export interface ExecuteResponse {
 
 export interface ConsoleLine {
   id: number;
-  type: "output" | "error" | "info";
+  type: "output" | "error" | "info" | "warning";
   text: string;
   timestamp: number;
 }
