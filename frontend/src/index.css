@@ -184,6 +184,12 @@ body {
   border-color: #888888;
 }
 
+.clear-btn:disabled {
+  color: #666666;
+  border-color: #444444;
+  cursor: not-allowed;
+}
+
 .console-body {
   flex: 1;
   overflow-y: auto;

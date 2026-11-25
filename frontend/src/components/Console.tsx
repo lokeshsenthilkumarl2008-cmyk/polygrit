@@ -11,36 +11,68 @@ const formatTime = (ts: number) =>
 
 export default function Console({ lines, onClear }: Props) {
   const endRef = useRef<HTMLDivElement>(null);
-  const [copied, setCopied] = useState(false);
+  const copyResetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [lines]);
 
+  useEffect(() => () => {
+    if (copyResetRef.current) clearTimeout(copyResetRef.current);
+  }, []);
+
   const handleCopy = async () => {
+    if (lines.length === 0) return;
+
     try {
-      await navigator.clipboard.writeText(lines.map((l) => l.text).join("\n"));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      const output = lines.map((line) => line.text).join("\n");
+      await navigator.clipboard.writeText(output);
+      setCopyStatus("copied");
     } catch {
-      setCopied(false);
+      setCopyStatus("failed");
+    }
+
+    if (copyResetRef.current) clearTimeout(copyResetRef.current);
+    copyResetRef.current = setTimeout(() => setCopyStatus("idle"), 1500);
+  };
+
+  const handleClear = () => {
+    onClear();
+    setCopyStatus("idle");
+    if (copyResetRef.current) {
+      clearTimeout(copyResetRef.current);
+      copyResetRef.current = null;
     }
   };
 
   return (
     <div className="console">
       <div className="console-header">
-        <span>CONSOLE OUTPUT</span>
-        <span className="console-actions">
-          <button className="clear-btn" onClick={handleCopy} disabled={lines.length === 0}>
-            {copied ? "Copied!" : "Copy"}
+        <span>CONSOLE OUTPUT{lines.length > 0 ? ` (${lines.length})` : ""}</span>
+        <span className="console-actions" aria-live="polite">
+          <button
+            className="clear-btn"
+            type="button"
+            onClick={handleCopy}
+            disabled={lines.length === 0}
+            aria-label="Copy console output"
+            title="Copy console output"
+          >
+            {copyStatus === "copied" ? "Copied!" : copyStatus === "failed" ? "Copy failed" : "Copy"}
           </button>
-          <button className="clear-btn" onClick={onClear}>
+          <button
+            className="clear-btn"
+            type="button"
+            onClick={handleClear}
+            disabled={lines.length === 0}
+            aria-label="Clear console output"
+          >
             Clear
           </button>
         </span>
       </div>
-      <div className="console-body">
+      <div className="console-body" role="log" aria-live="polite" aria-label="Console output">
         {lines.length === 0 && (
           <div className="console-empty">Run your code (Ctrl+Enter) to see output here.</div>
         )}
