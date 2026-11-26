@@ -19,3 +19,10 @@ export interface ConsoleLine {
   text: string;
   timestamp: number;
 }
+export interface RunRecord {
+  id: number;
+  language: Language;
+  status: ExecutionStatus;
+  executionTimeMs: number;
+  timestamp: number;
+}

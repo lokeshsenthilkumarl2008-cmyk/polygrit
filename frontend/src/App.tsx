@@ -5,6 +5,8 @@ import Header from "./components/Header";
 import SplitPane from "./components/SplitPane";
 import StatusBar from "./components/StatusBar";
 import TabBar from "./components/TabBar";
+import { useMetrics } from "./hooks/useMetrics";
+import { computeStats } from "./utils/metrics";
 import { LANGUAGES } from "./constants/languages";
 import { ApiError, executeCode } from "./services/api";
 import type { ConsoleLine, Language } from "./types";
@@ -41,6 +43,8 @@ export default function App() {
   const [lines, setLines] = useState<ConsoleLine[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [lastRunMs, setLastRunMs] = useState<number | null>(null);
+  const { runs, recordRun } = useMetrics();
+  const stats = computeStats(runs);
 
   const tab = tabs.find((t) => t.id === activeId) ?? tabs[0];
 
@@ -106,6 +110,7 @@ export default function App() {
     try {
       const res = await executeCode({ language: tab.language, code: tab.content });
       setLastRunMs(res.executionTimeMs);
+      recordRun(tab.language, res.status, res.executionTimeMs);
 
       if (res.output) addLine("output", res.output);
 
@@ -172,6 +177,8 @@ export default function App() {
         line={cursor.line}
         column={cursor.column}
         lastRunMs={lastRunMs}
+        totalRuns={stats.totalRuns}
+        avgMs={stats.avgMs}
       />
     </div>
   );
