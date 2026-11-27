@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Project Information -->
+    <groupId>com.polyglotmesh</groupId>
+    <artifactId>polyglotmesh-security</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>PolyglotMesh Security Runtime</name>
+    <description>
+        GraalVM Multi-Language Runtime Sandbox
+        - Security and Runtime Management
+    </description>
+
+    <packaging>jar</packaging>
+
+    <!-- Project Properties -->
+    <properties>
+
+        <maven.compiler.release>25</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- GraalVM -->
+        <graalvm.version>25.4.4.1.1</graalvm.version>
+
+        <!-- Docker -->
+        <docker-java.version>3.7.1</docker-java.version>
+
+        <!-- Testing -->
+        <junit.version>5.13.4</junit.version>
+
+        <!-- Maven Plugins -->
+        <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+        <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+
+    </properties>
+
+
+    <!-- Dependencies -->
+    <dependencies>
+
+        <!-- ====================================== -->
+        <!-- 1. GRAALVM POLYGLOT API                -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>polyglot</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 2. GRAALVM JAVASCRIPT ISOLATED RUNTIME -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>js-isolate-community</artifactId>
+            <version>${graalvm.version}</version>
+            <type>pom</type>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 3. GRAALVM PYTHON ISOLATED RUNTIME     -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python-isolate-community</artifactId>
+            <version>${graalvm.version}</version>
+            <type>pom</type>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 4. GRAALVM SANDBOX SUPPORT             -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>org.graalvm.truffle</groupId>
+            <artifactId>truffle-enterprise</artifactId>
+            <version>${graalvm.version}</version>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 5. DOCKER JAVA CORE                    -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-core</artifactId>
+            <version>${docker-java.version}</version>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 6. DOCKER HTTP CLIENT TRANSPORT        -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-transport-httpclient5</artifactId>
+            <version>${docker-java.version}</version>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 7. JACKSON JSON PROCESSING             -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.20.1</version>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 8. LOGGING                             -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+        </dependency>
+
+
+        <!-- ====================================== -->
+        <!-- 9. JUNIT 5 TESTING                     -->
+        <!-- ====================================== -->
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+
+    </dependencies>
+
+
+    <!-- Build Configuration -->
+    <build>
+
+        <plugins>
+
+            <!-- Java Compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven.compiler.plugin.version}</version>
+
+                <configuration>
+                    <release>25</release>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+
+            <!-- JUnit Test Execution -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.plugin.version}</version>
+            </plugin>
+
+
+            <!-- Build Executable JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
