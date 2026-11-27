@@ -1,8 +1,8 @@
 import type { ExecuteRequest, ExecuteResponse, ExecutionStatus } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8080").replace(/\/+$/, "");
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
-const REQUEST_TIMEOUT_MS = 15000;
+const REQUEST_TIMEOUT_MS = 180000;
 
 export class ApiError extends Error {
   kind: "network" | "timeout" | "http" | "invalid";
@@ -14,20 +14,45 @@ export class ApiError extends Error {
   }
 }
 
-const VALID_STATUSES: ExecutionStatus[] = ["SUCCESS", "ERROR", "TIMEOUT", "MEMORY_EXCEEDED"];
+const STATUS_MAP: Record<string, ExecutionStatus> = {
+  SUCCESS: "SUCCESS",
+  COMPLETED: "SUCCESS",
+  ERROR: "ERROR",
+  FAILED: "ERROR",
+  COMPILATION_ERROR: "ERROR",
+  INVALID_REQUEST: "ERROR",
+  UNSUPPORTED_LANGUAGE: "ERROR",
+  SECURITY_VIOLATION: "ERROR",
+  TIMEOUT: "TIMEOUT",
+  MEMORY_EXCEEDED: "MEMORY_EXCEEDED",
+  RESOURCE_EXHAUSTED: "MEMORY_EXCEEDED",
+};
 
-// Backend ka response check karke safe format mein badalta hai.
-// Agar Developer 1 ke field names alag hon, to sirf yahan change karo.
-function normalizeResponse(data: any): ExecuteResponse {
-  if (!data || typeof data !== "object") {
-    throw new ApiError("invalid", "Backend ne galat format ka response diya.");
+function normalizeResponse(data: unknown): ExecuteResponse {
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    throw new ApiError("invalid", "Backend returned an invalid response.");
   }
-  const status: ExecutionStatus = VALID_STATUSES.includes(data.status) ? data.status : "ERROR";
+
+  const response = data as Record<string, unknown>;
+  const rawStatus = typeof response.status === "string" ? response.status.toUpperCase() : "";
+  const status = STATUS_MAP[rawStatus];
+  if (!status || typeof response.output !== "string") {
+    throw new ApiError("invalid", "Backend response is missing a valid status or output.");
+  }
+
+  const executionTimeMs = response.executionTimeMs ?? response.executionTime;
+  if (typeof executionTimeMs !== "number" || !Number.isFinite(executionTimeMs) || executionTimeMs < 0) {
+    throw new ApiError("invalid", "Backend response contains an invalid execution time.");
+  }
+  if (response.error !== null && response.error !== undefined && typeof response.error !== "string") {
+    throw new ApiError("invalid", "Backend response contains an invalid error message.");
+  }
+
   return {
     status,
-    output: typeof data.output === "string" ? data.output : "",
-    error: typeof data.error === "string" ? data.error : null,
-    executionTimeMs: typeof data.executionTimeMs === "number" ? data.executionTimeMs : 0,
+    output: response.output,
+    error: typeof response.error === "string" ? response.error : null,
+    executionTimeMs,
   };
 }
 

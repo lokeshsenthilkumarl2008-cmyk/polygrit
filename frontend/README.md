@@ -64,7 +64,7 @@ Response:
 
 `status` is one of `SUCCESS`, `ERROR`, `TIMEOUT`, `MEMORY_EXCEEDED`. The backend must allow CORS for `http://localhost:5173`.
 
-If the backend uses different field names, only `normalizeResponse` in `src/services/api.ts` needs to change.
+The API adapter in `src/services/api.ts` normalizes backend status and timing field names to this frontend contract.
 
 ## Mock Mode
 
@@ -87,6 +87,6 @@ src/
   types/        shared TypeScript types
 ```
 
-## Status
+## Backend integration status
 
-Frontend is complete and tested in mock mode. Testing against the real backend depends on the backend branches being merged and running. See `TESTING.md` for the test checklist.
+The run action is connected to the integrated Spring Boot backend. Run counts and metrics remain frontend-local. Backend execution history and supported-language metadata are available but do not yet have frontend views. See [the backend README](../backend/README.md) for setup, API coverage, and current limitations.

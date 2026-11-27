@@ -1,6 +1,6 @@
 # Test Checklist
 
-Run with `VITE_USE_MOCK=true` unless a step says "real backend".
+Run with `VITE_USE_MOCK=true` for frontend-only checks. Use `VITE_USE_MOCK=false` for backend integration checks.
 
 ## Editor and layout
 - [ ] Editor loads with Python starter code
@@ -31,10 +31,15 @@ Run with `VITE_USE_MOCK=true` unless a step says "real backend".
 ## Error handling
 - [ ] VITE_USE_MOCK=false and backend off: "Connection error" message, UI does not hang
 
-## Real backend (when available)
+## Real backend
+- [ ] MongoDB is running and backend starts on `127.0.0.1:8080`
 - [ ] Python, Java and JavaScript each return real output
 - [ ] Infinite loop returns TIMEOUT
 - [ ] No CORS error in the browser console
+- [ ] Each run appears in `GET /api/history`
+- [ ] Stopping MongoDB causes a visible server error rather than a fake success
+
+See [backend setup and limitations](../backend/README.md) for startup commands.
 
 ## Result
 Tested on: ____  Passed: ____  Failed / notes: ____
