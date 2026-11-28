@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CodeEditor from "./components/CodeEditor";
-import Console from "./components/Console";
+import BottomPanel from "./components/BottomPanel";
+// import Console from "./components/Console";
 import Header from "./components/Header";
 import SplitPane from "./components/SplitPane";
 import StatusBar from "./components/StatusBar";
@@ -43,7 +44,7 @@ export default function App() {
   const [lines, setLines] = useState<ConsoleLine[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [lastRunMs, setLastRunMs] = useState<number | null>(null);
-  const { runs, recordRun } = useMetrics();
+    const { runs, recordRun, clearRuns } = useMetrics();
   const stats = computeStats(runs);
 
   const tab = tabs.find((t) => t.id === activeId) ?? tabs[0];
@@ -168,7 +169,15 @@ export default function App() {
               </div>
             </>
           }
-          bottom={<Console lines={lines} onClear={() => setLines([])} />}
+                    bottom={
+            <BottomPanel
+              lines={lines}
+              onClearConsole={() => setLines([])}
+              runs={runs}
+              stats={stats}
+              onClearMetrics={clearRuns}
+            />
+          }
         />
       </main>
       <StatusBar
